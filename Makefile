@@ -2,12 +2,16 @@
 DOCKERFILES_DIR = dockerfiles
 DOCKER_REPOSITORY ?=
 
-VERSION ?=
-
-ifeq ($(VERSION),)
-  GIT_VERSION := $(shell git describe)
-  VERSION := $(or $(GIT_VERSION),latest)
+ifeq ($(RELEASE),1)
+  GIT_DIRTY := $(shell git diff --quiet HEAD; echo $$?)
+  ifeq ($(GIT_DIRTY),0)
+  VERSION ?= $(shell git describe)
+  else
+    $(error trying to release, but git is not installed or indicates changes)
+  endif
 endif
+
+VERSION := $(or $(VERSION),latest)
 
 DOCKERFILES = $(wildcard $(DOCKERFILES_DIR)/*)
 DOCKER_IMAGES = $(foreach docker,$(DOCKERFILES),$(notdir $(docker)))
