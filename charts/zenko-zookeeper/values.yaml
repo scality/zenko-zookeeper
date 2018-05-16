@@ -41,15 +41,6 @@ storage:
     size: 50Gi
     # storageClass: default
 
-# Affinities to add to the worker pods.
-# Useful if you prefer to run workers on non-spot instances, for example
+affinity_disabled: False
+## Mean default anti-affinity in the statefulset template
 affinity: {}
-# nodeAffinity:
-#   preferredDuringSchedulingIgnoredDuringExecution:
-#     - weight: 50
-#       preference:
-#         matchExpressions:
-#           - key: spot
-#             operator: NotIn
-#             values:
-#               - "true"
