@@ -20,14 +20,27 @@ spec:
         release: {{ .Release.Name | quote }}
         chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
         heritage: {{ .Release.Service | quote }}
+        release-app: {{ printf "%s-%s" .Release.Name (include "zookeeper.name" .) | quote }}
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: "/"
         prometheus.io/port: "9141"
     spec:
-{{- if .Values.affinity }}
+{{- if not .Values.affinity_disabled }}
       affinity:
+{{- if .Values.affinity }}
 {{ toYaml .Values.affinity | indent 8 }}
+{{ else }}
+        PodAntiAffinity:
+          RequiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: release-app
+                operator: In
+                values:
+                - {{ printf "%s-%s" .Release.Name (include "zookeeper.name" .) | quote }}
+            topologyKey: "kubernetes.io/hostname"
+{{- end }}
 {{- end }}
       containers:
       - name: {{ template "zookeeper.name" . }}-server
